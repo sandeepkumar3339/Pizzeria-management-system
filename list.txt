@@ -1,0 +1,271 @@
+##LOGIN## - 5+(3)+(XAMPP intro + intro to project then lead to person talking about manager and chef,dp portal to talk abt create table commands)
+1.select * from Login where username=uname and password=pword;
+2.Select c_id from customer where username =uname;
+3.Select Emp_id from Employee where username =uname;(REPEATED)
+
+
+##SIGNUP##
+
+1.insert into customer (Name,Phone_no,Address,Username,Password) values (N,P_no,Addr,Uname,Pword);
+DELIMITER $$
+
+CREATE or replace TRIGGER clog
+BEFORE INSERT
+ON customer FOR EACH ROW
+BEGIN
+      
+        INSERT INTO login(username,PASSWORD,idflag)
+        VALUES(new.username,new.password,1);
+ 
+
+END $$
+DELIMITER ;
+
+
+
+------------------------------------------------------------------------------
+CUSTOMER PORTAL- 12
+##menu##
+1.select count(*) from cust_order where c_id=cid;
+2.select order_no from cust_order where c_id=cid;
+3.Insert into cust_order values (ono , cid);  
+4.Select * from menu;      
+5.Select price from menu where item_id=itid1;
+6.Insert into Order_items values (ono,itid1,qty1,price1*qty1,1);
+7.Select price from menu where item_id=itid2;
+8.Insert into Order_items values (ono,itid2,qty2 +price2*qty2+",1);
+9.delete from cust_order where order_no=ono and c_id=cid;
+
+##view order##
+1.Select * from order_items where order_no=ono;
+2.Select * from menu natural join order_items where Item_id=iid;
+
+##OrderScreen##
+1.Select * from order_items where order_no=ono;
+2.Select * from menu natural join order_items where Item_id=iid;
+--------------------------------------------------------------------------------
+ADMIN PORTAL(10+10)-
+###Add employess###         
+1.Insert into employee(name,designation,phone_no,username,password) values(name,designation,phone_no,username,password);
+DELIMITER $$
+
+CREATE or replace TRIGGER elog
+BEFORE INSERT
+ON employee FOR EACH ROW
+BEGIN
+  
+    if (new.designation like 'manager') then
+       INSERT INTO login(username,Password,idflag)VALUES(new.Username,new.password,3);
+    ELSEIF (new.designation like 'chef') then
+       INSERT INTO login(username,Password,idflag) VALUES(new.username,new.password,4);
+   ELSEIF(new.designation like 'delivery%') then
+       INSERT INTO login(username,Password,idflag) VALUES(new.username,new.password,5);
+   end if;
+    
+ 
+
+END $$
+
+DELIMITER ;
+
+
+
+###RemoveEmployee###
+1.Select Emp_id , name , phone_no from Employee;
+2.select * from employee where emp_id=eid;
+3.Delete from Login where username=uname;
+
+###edit employee 1 ###
+1.Select Emp_id , name , phone_no from Employee;
+2.Select * from Employee where Emp_id = eid;
+
+###edit employee 2 ###
+1.Select * from Employee where Emp_id =eid;
+2.Update Login set Username=username,Password=password where username=old_username;
+3.Update Employee set Name=name,Designation=designation,Phone_no=pno where Emp_id=empid;
+
+---------------------------------
+###edit_customerdata 1###
+1.Select c_id , name , phone_no from customer;
+2.Select * from customer where c_id =cid;
+
+
+###edit_customerdata 2###
+1.Select * from customer where c_id =cid;
+2.Update Login set Username=username,Password=password where username=old_username;
+3.Update customer set name=name,Phone_no=pno,Address=addr where c_id=cid;
+
+###Add menu item###
+1.Insert into menu values(item_id,item_name,price,Spice_level);
+
+###edit menu item1###
+1.Select * from Menu;
+2.Select * from menu where Item_id =iid;
+
+
+###edit menu item2###
+1.Select * from menu where item_id = iid;
+2.Update Menu set Item_id=iid,Item_name=i_name,price=p,Spice_level=sl where item_id=iid;
+
+---------------------------------------------------------------------------------
+
+MANAGER PORTAL(8)-("WILL ALSO TALK ABOUT 3 CREATE TABLE")
+(
+1.create table login (username varchar(50), password varchar(50), idflag int, PRIMARY KEY (username, password));
+
+2. CREATE TABLE Employee(Emp_id int AUTO_INCREMENT, Name varchar(50),Designation varchar(20),Phone_no Decimal(10,0),Username varchar(50),Password varchar(50),PRIMARY KEY(Emp_id),FOREIGN KEY (Username,Password) REFERENCES login(username,password)on DELETE CASCADE on UPDATE CASCADE);
+
+3.CREATE TABLE Customer(C_id int AUTO_INCREMENT, Name varchar(50),Phone_no Decimal(10,0),Address varchar(500),Username varchar(50),Password varchar(50), PRIMARY KEY(C_id),FOREIGN KEY (Username,Password) REFERENCES login(username,password)On DELETE CASCADE ON UPDATE CASCADE);
+
+)
+1.Select distinct(Order_no) from order_items where status=1;
+2.select emp_id,name,designation from employee where designation='chef' or designation='delivery person'";
+3.Insert into works_on values(eidc,ono);
+4.Insert into works_on values(eiddp,ono);
+5.update order_items set status=2 where order_no=ono;
+6.select emp_id,name,designation from employee where designation='chef' or designation='delivery person'";
+7.Select distinct(Order_no) from order_items where status=1;";
+8.select emp_id,name,designation from employee where designation='chef' or designation='delivery person'";
+
+------------------------------------------------------------------------------------------
+
+CHEF PORTAL(8)-("WILL ALSO TALK ABOUT 4 CREATE TABLE")
+(
+4.CREATE TABLE Menu(Item_id varchar(10),Item_name varchar(50),Price int , Spice_level varchar(20),PRIMARY KEY(Item_id));
+
+5.CREATE TABLE Cust_Order(Order_no int,C_id int,PRIMARY KEY(Order_no),FOREIGN KEY (C_id) REFERENCES customer(C_id)on DELETE CASCADE);
+
+6.CREATE TABLE order_items(Order_no int,Item_id varchar(10),Quantity int , Total_Price int,status int,FOREIGN KEY (Order_no) REFERENCES cust_order(Order_no) on DELETE CASCADE,Foreign KEY(Item_id) REFERENCES menu(Item_id)on DELETE CASCADE);
+
+7.CREATE TABLE works_on(Emp_id int,Order_no int,FOREIGN key (Emp_id) REFERENCES employee(Emp_id)ON DELETE CASCADE, FOREIGN KEY(Order_no) REFERENCES cust_order(Order_no)ON DELETE CASCADE);
+)
+###chefpage###
+1.select w.Order_no,m.Item_name,o.quantity from order_items o natural join works_on w natural join Order_items c natural join menu m where w.Emp_id="+eid+" and status=2;
+2.delete from works_on where emp_id='eid'and order_no=ono
+3.update order_items set status=3 where order_no=ono;
+4.Select w.Order_no,m.Item_name,o.quantity from order_items o natural join works_on w natural join Order_items c natural join menu m where w.Emp_id=eid;
+            
+
+DP PORTAL-
+###deliveryperson###
+1.Select distinct(order_no),address from works_on natural join customer natural join cust_order natural join order_items where emp_id=eid and status = 3;
+2. delete from works_on where emp_id=eidand order_no=ono;
+3.delete from order_items where order_no=ono;
+4.Select order_no,address from works_on natural join customer natural join cust_order where emp_id=eid;
+-----------------------------------------------------------------------------------------------
+
+###Add employess###         
+1.Insert into employee values (username,password.idflag)
+2.Insert into employee(name,designation,phone_no,username,password) values(name,designation,phone_no,username,password);
+
+                    
+
+###Add menu item###
+1.Insert into menu values(item_id,item_name,price,Spice_level);
+
+####Admin page - nothing###
+
+
+###chefpage###
+1.select w.Order_no,m.Item_name,o.quantity from order_items o natural join works_on w natural join Order_items c natural join menu m where w.Emp_id="+eid+" and status=2;
+2.delete from works_on where emp_id='eid'and order_no=ono
+3.update order_items set status=3 where order_no=ono;
+4.Select w.Order_no,m.Item_name,o.quantity from order_items o natural join works_on w natural join Order_items c natural join menu m where w.Emp_id=eid;
+            
+      
+
+###deliveryperson###
+1.Select distinct(order_no),address from works_on natural join customer natural join cust_order natural join order_items where emp_id=eid and status = 3;
+2. delete from works_on where emp_id=eidand order_no=ono;
+3.delete from order_items where order_no=ono;
+4.Select order_no,address from works_on natural join customer natural join cust_order where emp_id=eid;
+
+            
+
+###edit_customerdata 1###
+1.Select c_id , name , phone_no from customer;
+2.Select * from customer where c_id =cid;
+
+
+###edit_customerdata 2###
+1.Select * from customer where c_id =cid;
+2.Update Login set Username=username,Password=password where username=old_username;
+3.Update customer set name=name,Phone_no=pno,Address=addr where c_id=cid;
+
+
+
+###edit employee 1 ###
+1.Select Emp_id , name , phone_no from Employee;
+2.Select * from Employee where Emp_id = eid;
+
+
+###edit employee 2 ###
+1.Select * from Employee where Emp_id =eid;
+2.Update Login set Username=username,Password=password where username=old_username;
+3.Update Employee set Name=name,Designation=designation,Phone_no=pno where Emp_id=empid;
+           
+
+###edit menu item1###
+1.Select * from Menu;
+2.Select * from menu where Item_id =iid;
+
+
+###edit menu item2###
+1.Select * from menu where item_id = iid;
+2.Update Menu set Item_id=iid,Item_name=i_name,price=p,Spice_level=sl where item_id=iid;
+
+
+
+###login###
+1.select * from Login where username=uname and password=pword;
+2.Select c_id from customer where username =uname;
+3.Select Emp_id from Employee where username =uname;
+4.Select Emp_id from Employee where username =uname;
+
+
+###ManagerAssignOrder###
+1.Select distinct(Order_no) from order_items where status=1;
+2.select emp_id,name,designation from employee where designation='chef' or designation='delivery person'";
+3.Insert into works_on values(eidc,ono);
+4.Insert into works_on values(eiddp,ono);
+5.update order_items set status=2 where order_no=ono;
+6.select emp_id,name,designation from employee where designation='chef' or designation='delivery person'";
+7.Select distinct(Order_no) from order_items where status=1;";
+8.select emp_id,name,designation from employee where designation='chef' or designation='delivery person'";
+
+           
+        
+
+
+###Menu###
+1.select count(*) from cust_order where c_id=cid;
+2.select order_no from cust_order where c_id=cid;
+3.Insert into cust_order values (ono , cid);        
+4.Select price from menu where item_id=itid1;
+5.Insert into Order_items values (ono,itid1,qty1,price1*qty1,1);
+6.Select price from menu where item_id=itid2;
+7.Insert into Order_items values (ono,itid2,qty2 +price2*qty2+",1);";
+8.delete from cust_order where order_no=ono and c_id=cid;
+
+
+
+
+###OrderScreen###
+1.Select * from order_items where order_no=ono;
+2.Select * from menu natural join order_items where Item_id=iid;
+       
+
+###RemoveEmployee###
+1.Select Emp_id , name , phone_no from Employee;
+2.select * from employee where emp_id=eid;
+3.Delete from Login where username=uname;
+
+
+###SignUp###
+1.insert into login values (uname,password,1);";
+2.insert into customer (Name,Phone_no,Address,Username,Password) values (N,P_no,Addr,Uname,Pword);
+
+
+###ViewOrderScreen###
+1.Select * from order_items where order_no=ono;
+2.Select * from menu natural join order_items where Item_id=iid;

@@ -1,0 +1,85 @@
+1.create table login (username varchar(50), password varchar(50) check (lengthb(password)>=6), idflag int, PRIMARY KEY (username, password));
+
+2.CREATE TABLE Employee(Emp_id int AUTO_INCREMENT, Name varchar(50),Designation varchar(20),Phone_no Decimal(10,0) CHECK (Phone_no>999999999 
+and phone_no<10000000000),Username varchar(50),Password varchar(50),PRIMARY KEY(Emp_id),FOREIGN KEY (Username,Password) 
+REFERENCES login(username,password)on DELETE CASCADE on UPDATE CASCADE);
+
+3.CREATE TABLE Customer(C_id int AUTO_INCREMENT, Name varchar(50),Phone_no Decimal(10,0)CHECK (Phone_no>999999999 and phone_no<10000000000)
+,Address varchar(500),Username varchar(50),Password varchar(50), PRIMARY KEY(C_id),
+FOREIGN KEY (Username,Password) REFERENCES login(username,password)On DELETE CASCADE ON UPDATE CASCADE);
+
+4.CREATE TABLE Menu(Item_id varchar(10) PRIMARY key ,Item_name varchar(50) not null ,Price int check (price>0), 
+Spice_level varchar(20) check(spice_level in('Mild','Medium','Spicy')));
+
+5.CREATE TABLE Cust_Order(Order_no int,C_id int,PRIMARY KEY(Order_no),FOREIGN KEY (C_id) REFERENCES customer(C_id)on DELETE CASCADE);
+
+6.CREATE TABLE order_items(Order_no int,Item_id varchar(10),Quantity int check (quantity>0) , Total_Price int check (total_price>0) ,
+status int,FOREIGN KEY (Order_no) REFERENCES cust_order(Order_no) on DELETE CASCADE,Foreign KEY(Item_id) REFERENCES menu(Item_id)on DELETE CASCADE  );
+
+7.CREATE TABLE works_on(Emp_id int,Order_no int,FOREIGN key (Emp_id) REFERENCES employee(Emp_id)ON DELETE CASCADE, 
+FOREIGN KEY(Order_no) REFERENCES cust_order(Order_no)ON DELETE CASCADE);
+
+8.
+DELIMITER $$
+
+CREATE or replace TRIGGER clog
+BEFORE INSERT
+ON customer FOR EACH ROW
+BEGIN
+      
+        INSERT INTO login(username,PASSWORD,idflag)
+        VALUES(new.username,new.password,1);
+ 
+
+END $$
+DELIMITER ;
+
+9.
+DELIMITER $$
+
+CREATE or replace TRIGGER elog
+BEFORE INSERT
+ON employee FOR EACH ROW
+BEGIN
+  
+    if (new.designation like 'manager') then
+       INSERT INTO login(username,Password,idflag)VALUES(new.Username,new.password,3);
+    ELSEIF (new.designation like 'chef') then
+       INSERT INTO login(username,Password,idflag) VALUES(new.username,new.password,4);
+   ELSEIF(new.designation like 'delivery%') then
+       INSERT INTO login(username,Password,idflag) VALUES(new.username,new.password,5);
+   end if;
+    
+ 
+
+END $$
+
+DELIMITER ;
+
+10.
+DELIMITER $$
+
+CREATE or replace TRIGGER order_update
+AFTER DELETE
+ON works_on FOR EACH ROW
+BEGIN
+	
+     if((SELECT count(*) from works_on NATURAL JOIN order_items where order_no=old.order_no) >1) then
+      UPDATE order_items set status=3 where order_no=old.order_no;
+      else 
+      DELETE from cust_order where order_no=old.order_no;
+      end if;
+
+END $$
+
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
